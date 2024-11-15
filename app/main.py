@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, APIRouter, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from . import models, crud
 from .database import sessionLocal, engine, Base
 from .models import MovieCreate
@@ -14,14 +15,24 @@ def get_db():
         yield db
     finally:
         db.close()
-
        
 
 @app.post("/movies/")
-def create_movie(tittle: str, description: str, genre: str, rating: float, user_id: int, db: Session = Depends(get_db)):
-    user_id = 1
-    movie = models.Movie(tittle=tittle, description=description, genre=genre, rating=rating)
-    return crud.create_movie(db=db, movie=movie, user_id=user_id)
+def create_movie(movie: MovieCreate, db: Session = Depends(get_db)):
+
+    new_movie = models.Movie(
+        title=movie.title,
+        description=movie.description,
+        genre=movie.genre,
+        rating=movie.rating,
+        owner_id=movie.user_id
+    )
+
+    db.add(new_movie)
+    db.commit()
+    db.refresh(new_movie)
+
+    return new_movie
 
 
 @app.get("/movies/{movie_id}")

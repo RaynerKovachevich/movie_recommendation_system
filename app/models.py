@@ -8,7 +8,7 @@ class Movie(Base):
     __tablename__ = "movies"
 
     id = Column(Integer, primary_key=True, index=True)
-    tittle = Column(String, index=True)
+    title = Column(String, index=True)
     description = Column(String)
     genre = Column(String)
     rating = Column(Float)
@@ -37,10 +37,11 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 class MovieCreate(BaseModel):
-    tittle: str
+    title: str
     description: str
     genre: str
     rating: float
+    user_id: int
 
     class Config:
         orm_mode = True
